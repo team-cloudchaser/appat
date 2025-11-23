@@ -29,15 +29,14 @@
 - `c`: Connection UUID. This is set to distinguish relayed connections apart. Each relayed connection will have a different UUID.
 - `e`: Extra info. This is an optional field.
   - `p`: **Only valid for WebSockets**. [WebSocket subprotocol](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/protocol), effectively the value of the `Sec-WebSocket-Protocol` header. This field is currently mostly repurposed to handle early payload data encoded in [URL-safe Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5).
-  - `r`: **Only valid for non-WebSockets for browsers**. Value of the [`Referer`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#referrer) header. This field is currently mostly repurposed to handle early payload data encoded in [URL-safe Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5).
+  - `r`: **Only valid for non-WebSockets for browsers**. Value of the [`Referer`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#referrer) header. This field is currently mostly repurposed to handle early payload data encoded in [URL-safe Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5). The value of this field can change in the dialer.
   - `h`: **Only valid for non-WebSockets for browsers**. The map of all of the header key-value pairs to send on request initiation. Should not be one of the [forbidden headers](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_request_header) in browsers.
 
 ### Response status schema
 Only viable for normal HTTP requests.
 ```json
 {
-	"active": 1,
-	"limit": 256,
+	"quota": 255,
 	"c": "00000000-0000-0000-0000-000000000000",
 	"s": 200,
 	"t": "OK",
@@ -46,8 +45,7 @@ Only viable for normal HTTP requests.
 	}
 }
 ```
-- `active`: Number of active connections.
-- `limit`: Maximum count of allowed connections (limit).
+- `quota`: Number of connections still able to be accepted.
 - `c`: Connection UUID. The same UUID assigned by the dialer controller.
 - `s`: Numeric status.
 - `t`: Status text.

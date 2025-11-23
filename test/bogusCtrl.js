@@ -1,5 +1,7 @@
 "use strict";
 
+let u8Dec = new TextDecoder();
+
 Deno.serve({
 	"port": 5779,
 	"hostname": "127.0.0.1"
@@ -20,13 +22,14 @@ Deno.serve({
 				socket.addEventListener("open", () => {
 					socket.send(`{"m":"PING"}`);
 					socket.send(`{"m":"GET","u":"https://example.com/","c":"11111111-1111-1111-1111-111111111111","e":{"r":"about:client","h":{"Accept":"text/html"}}}`);
+					socket.send(`{"m":"GET","u":"https://browserleaks.com/ip","c":"22222222-2222-2222-2222-222222222222","e":{"r":"about:client","h":{"Accept":"text/html","Authorization":"Bearer Appat"}}}`);
 				});
 				socket.addEventListener("message", (ev) => {
 					console.debug(`Status ${socketId}`, ev.data);
 				});
 			} else {
-				socket.addEventListener("message", (ev) => {
-					console.debug(`Body ${socketId}:`, ev.data);
+				socket.addEventListener("message", async (ev) => {
+					console.debug(`Body ${socketId}:`, u8Dec.decode(new Uint8Array(ev.data)));
 				});
 			};
 		} else {

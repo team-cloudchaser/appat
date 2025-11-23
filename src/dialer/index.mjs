@@ -15,15 +15,22 @@ const FutureSignal = class FutureSignal {
 		this.#trueResolve();
 	};
 };
+const denoClient = self.Deno?.createHttpClient({
+	"allowHost": true
+});
 
 export default class AppatController {
+	report = true; // Set to false to disable response status reporting
 	instanceId;
 	#wsNext = true; // Set to true to trigger WS fallback
 	#rqNext = true; // Set to true to trigger fetch fallback
+	#isBrowser = 2; // 2 for safe browser, 1 for unsafe, 0 for non-browser
 	#prefix;
 	#csrf;
 	#compiledPrefix;
+	#compiledWsPrefix;
 	#controller;
+	#aborter;
 	constructor(prefix, csrf) {
 		if (!Request.prototype.hasOwnProperty("body")) {
 			this.#rqNext = false;
@@ -32,6 +39,9 @@ export default class AppatController {
 		if (typeof self?.WebSocketStream !== "function") {
 			this.#wsNext = false;
 			throw(new Error("WebSocket does not support streaming"));
+		};
+		if (typeof self?.Deno !== "undefined") {
+			this.#isBrowser = 0;
 		};
 		this.#csrf = csrf;
 		this.#prefix = prefix;
@@ -50,19 +60,72 @@ export default class AppatController {
 		// Generate a new page ID
 		upThis.instanceId = self.crypto?.randomUUID();
 		upThis.#compiledPrefix = `${upThis.#prefix}/ws/${upThis.instanceId}`;
+		upThis.#compiledWsPrefix = upThis.#compiledPrefix.replace("http", "ws");
 		upThis.#controller = new WebSocket(`${upThis.#compiledPrefix}/ctrl?token=${upThis.#csrf}`);
 		upThis.#controller.addEventListener("error", (ev) => {
 			console.warn(`Control socket has errored out:`, ev.error);
 		});
 		upThis.#controller.addEventListener("close", (ev) => {
+			upThis.#aborter.abort();
 			console.warn(`Control socket closed.`);
 		});
 		upThis.#controller.addEventListener("opened", (ev) => {
 			console.warn(`Control socket is now ready.`);
+			upThis.#aborter = new AbortController();
 		});
 		upThis.#controller.addEventListener("message", async (ev) => {
 			let data = JSON.parse(ev.data);
 			console.debug(data);
+			switch (data.m) {
+				case "PING": {
+					console.debug(`Pong!`);
+					break;
+				};
+				case "WS": {
+					break;
+				};
+				case "WT": {
+					break;
+				};
+				case "GET": {
+					let opt = {
+						"method": data.m,
+						"signal": upThis.#aborter
+					};
+					if (data.hasOwnProperty("e")) {
+						if (data.e.hasOwnProperty("r")) {
+							opt.referrerPolicy = "unsafe-url";
+							// Would this change when web safety gets disabled?
+							let rUrl = new URL(data.e.r);
+							opt.referrer = data.e.r.replace(`${rUrl.protocol}//${rUrl.hostname}`);
+						};
+						if (data.e.hasOwnProperty("h")) {
+							opt.headers = data.e.h;
+						};
+					};
+					let req = await fetch(data.u, opt);
+					if (upThis.report) {
+						let report = {
+							"c": data.c,
+							"s": req.status,
+							"t": req.statusText,
+							"h": {}
+						};
+						for (const [k, v] of req.headers.entries()) {
+							report.h[k] = v;
+						};
+						upThis.#controller.send(JSON.stringify(report));
+					};
+					let wsStream = new WebSocketStream(`${upThis.#compiledWsPrefix}/${data.c}?token=${upThis.#csrf}`);
+					wsStream.opened.then(async ({writable: w}) => {
+						await req.body.pipeTo(w);
+					});
+					break;
+				};
+				default: {
+					// Expects a request body
+				};
+			};
 		});
 	};
 };
