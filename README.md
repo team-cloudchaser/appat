@@ -36,6 +36,8 @@
 Only viable for normal HTTP requests.
 ```json
 {
+	"active": 1,
+	"limit": 256,
 	"c": "00000000-0000-0000-0000-000000000000",
 	"s": 200,
 	"t": "OK",
@@ -44,6 +46,8 @@ Only viable for normal HTTP requests.
 	}
 }
 ```
+- `active`: Number of active connections.
+- `limit`: Maximum count of allowed connections (limit).
 - `c`: Connection UUID. The same UUID assigned by the dialer controller.
 - `s`: Numeric status.
 - `t`: Status text.
@@ -63,7 +67,7 @@ This section is strictly for this reference implementation.
 ### Protocols
 | Protocol | Supported? |
 | -------- | ---------- |
-| `WS` | Yes |
+| `WS` | No |
 | `WT` | No |
 | `GET` | Yes |
 | `POST` etc. | No |

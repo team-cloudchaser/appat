@@ -60,7 +60,7 @@ export default class AppatController {
 		upThis.#controller.addEventListener("opened", (ev) => {
 			console.warn(`Control socket is now ready.`);
 		});
-		upThis.#controller.addEventListener("message", (ev) => {
+		upThis.#controller.addEventListener("message", async (ev) => {
 			let data = JSON.parse(ev.data);
 			console.debug(data);
 		});
