@@ -32,6 +32,23 @@
   - `r`: **Only valid for non-WebSockets for browsers**. Value of the [`Referer`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#referrer) header. This field is currently mostly repurposed to handle early payload data encoded in [URL-safe Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5).
   - `h`: **Only valid for non-WebSockets for browsers**. The map of all of the header key-value pairs to send on request initiation. Should not be one of the [forbidden headers](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_request_header) in browsers.
 
+### Response status schema
+Only viable for normal HTTP requests.
+```json
+{
+	"c": "00000000-0000-0000-0000-000000000000",
+	"s": 200,
+	"t": "OK",
+	"h": {
+		"Content-Type": "application/octet-stream"
+	}
+}
+```
+- `c`: Connection UUID. The same UUID assigned by the dialer controller.
+- `s`: Numeric status.
+- `t`: Status text.
+- `h`: A list of response headers.
+
 ### Processing flow
 1. The browser visits the page served by the dialer controller (e.g. `127.0.0.1:5779`), and generates a random "page UUID" (e.g. `krsw`). The `token` query parameter or the second command line argument is taken as the CSRF token if it's unset.
 2. Dialer connects to the control socket (e.g. `ws://127.0.0.1:5779/krsw/ctrl?token=ookoe`) to receive commands.
@@ -54,3 +71,6 @@ This section is strictly for this reference implementation.
 ## FAQ
 ### Can the reference implementation be used for all HTTP-based requests?
 Most, but not all. gRPC and `GET` requests with bodies are examples that cannot be tunneled via Appat or any other browser dialers. However, we encourage any project to build a headless dialer contemplating this.
+
+### Are the relayed connections fully duplex?
+Depending on the actual runtime used with the dialer. If in a browser, none of the current browser supports fully duplex connections. If in headless runtimes like Deno however, it is fully duplex.
