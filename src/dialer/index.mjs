@@ -87,7 +87,13 @@ export default class AppatController {
 				case "WT": {
 					break;
 				};
-				case "GET": {
+				case "HEAD":
+				case "GET":
+				case "POST":
+				case "PUT":
+				case "DELETE":
+				case "OPTIONS":
+				case "PATCH": {
 					let opt = {
 						"method": data.m,
 						"signal": upThis.#aborter
@@ -104,6 +110,20 @@ export default class AppatController {
 						};
 					};
 					try {
+						let wsStream = new WebSocketStream(`${upThis.#compiledWsPrefix}/${data.c}?token=${upThis.#csrf}`);
+						let wssTun = await wsStream.opened;
+						switch (data.m) {
+							case "POST":
+							case "PUT":
+							case "DELETE":
+							case "OPTIONS":
+							case "PATCH": {
+								// Add the request body
+								opt.body = wssTun.readable;
+								opt.duplex = upThis.#isBrowser > 0 ? "half" : "full";
+								break;
+							};
+						};
 						let req = await fetch(data.u, opt);
 						if (upThis.report) {
 							let report = {
@@ -117,10 +137,11 @@ export default class AppatController {
 							};
 							upThis.#controller.send(JSON.stringify(report));
 						};
-						let wsStream = new WebSocketStream(`${upThis.#compiledWsPrefix}/${data.c}?token=${upThis.#csrf}`);
-						wsStream.opened.then(async ({writable: w}) => {
-							await req.body.pipeTo(w);
-						});
+						if (data.m === "HEAD") {
+							wssTun.close();
+						} else {
+							await req.body.pipeTo(wssTun.writable);
+						};
 					} catch (err) {
 						console.warn(err);
 						if (upThis.report) {
@@ -136,7 +157,7 @@ export default class AppatController {
 					break;
 				};
 				default: {
-					// Expects a request body
+					console.warn(`Unsupported method: ${data.m}`);
 				};
 			};
 		});

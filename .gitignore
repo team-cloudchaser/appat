@@ -7,8 +7,6 @@ build
 dist/*.js
 dist/*.css
 dist/*.ts
-dist/*.mts
-dist/*.htm
 dist/*.html
 
 ghp-gz

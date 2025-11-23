@@ -70,7 +70,7 @@ This section is strictly for this reference implementation.
 | `WS` | No |
 | `WT` | No |
 | `GET` | Yes |
-| `POST` etc. | No |
+| `POST` etc. | Yes |
 
 ## FAQ
 ### Can the reference implementation be used for all HTTP-based requests?
