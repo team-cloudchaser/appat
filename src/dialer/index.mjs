@@ -103,23 +103,36 @@ export default class AppatController {
 							opt.headers = data.e.h;
 						};
 					};
-					let req = await fetch(data.u, opt);
-					if (upThis.report) {
-						let report = {
-							"c": data.c,
-							"s": req.status,
-							"t": req.statusText,
-							"h": {}
+					try {
+						let req = await fetch(data.u, opt);
+						if (upThis.report) {
+							let report = {
+								"c": data.c,
+								"s": req.status,
+								"t": req.statusText,
+								"h": {}
+							};
+							for (const [k, v] of req.headers.entries()) {
+								report.h[k] = v;
+							};
+							upThis.#controller.send(JSON.stringify(report));
 						};
-						for (const [k, v] of req.headers.entries()) {
-							report.h[k] = v;
+						let wsStream = new WebSocketStream(`${upThis.#compiledWsPrefix}/${data.c}?token=${upThis.#csrf}`);
+						wsStream.opened.then(async ({writable: w}) => {
+							await req.body.pipeTo(w);
+						});
+					} catch (err) {
+						console.warn(err);
+						if (upThis.report) {
+							let report = {
+								"c": data.c,
+								"s": 0,
+								"t": err.name,
+								"e": `${err.message}\n${err.stack}`
+							};
+							upThis.#controller.send(JSON.stringify(report));
 						};
-						upThis.#controller.send(JSON.stringify(report));
 					};
-					let wsStream = new WebSocketStream(`${upThis.#compiledWsPrefix}/${data.c}?token=${upThis.#csrf}`);
-					wsStream.opened.then(async ({writable: w}) => {
-						await req.body.pipeTo(w);
-					});
 					break;
 				};
 				default: {

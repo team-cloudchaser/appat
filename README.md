@@ -40,6 +40,7 @@ Only viable for normal HTTP requests.
 	"c": "00000000-0000-0000-0000-000000000000",
 	"s": 200,
 	"t": "OK",
+	"e": "",
 	"h": {
 		"Content-Type": "application/octet-stream"
 	}
@@ -49,6 +50,7 @@ Only viable for normal HTTP requests.
 - `c`: Connection UUID. The same UUID assigned by the dialer controller.
 - `s`: Numeric status.
 - `t`: Status text.
+- `e`: Optional field. When `s` is set to `0`, this field will contain detailed info on the error.
 - `h`: A list of response headers.
 
 ### Processing flow
@@ -76,3 +78,7 @@ Most, but not all. gRPC and `GET` requests with bodies are examples that cannot 
 
 ### Are the relayed connections fully duplex?
 Depending on the actual runtime used with the dialer. If in a browser, none of the current browser supports fully duplex connections. If in headless runtimes like Deno however, it is fully duplex.
+
+### How do I test the dialer without CORS?
+- For Chromium: Use `--disable-web-security`. A temporary data directory is also required with `--user-data-dir=tmpData`. Perfect for headless use as well.
+- For Firefox: Set `security.fileuri.strict_origin_policy` to `false` (headless friendly), or install the "CORS Everywhere" extension.

@@ -4,7 +4,7 @@ import AppatController from "../dialer/index.mjs";
 
 let pagePrefix;
 if (self.location?.href) {
-	pagePrefix = `${location.protocol}//${location.host}${location.pathname}`;
+	pagePrefix = `${location.protocol}//${location.host}`;
 } else if (self.Deno?.args[0]?.length > 0) {
 	pagePrefix = `http://${self.Deno.args[0]}`;
 } else {
@@ -29,4 +29,4 @@ if (pageCSRF === nullCSRF) {
 console.debug(`Received CSRF token: ${pageCSRF}`);
 
 let dialer = new AppatController(pagePrefix, pageCSRF);
-await dialer.start();
+dialer.start();
