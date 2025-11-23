@@ -32,6 +32,14 @@
   - `r`: **Only valid for non-WebSockets for browsers**. Value of the [`Referer`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#referrer) header. This field is currently mostly repurposed to handle early payload data encoded in [URL-safe Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5).
   - `h`: **Only valid for non-WebSockets for browsers**. The map of all of the header key-value pairs to send on request initiation. Should not be one of the [forbidden headers](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_request_header) in browsers.
 
+### Processing flow
+1. The browser visits the page served by the dialer controller (e.g. `127.0.0.1:5779`), and generates a random "page UUID" (e.g. `krsw`). The `token` query parameter or the second command line argument is taken as the CSRF token if it's unset.
+2. Dialer connects to the control socket (e.g. `ws://127.0.0.1:5779/krsw/ctrl?token=ookoe`) to receive commands.
+3. The data sockets are located under the page UUID (e.g. `ws://127.0.0.1:5779/krsw/00000000-0000-0000-0000-000000000000?token=ookoe`). Upon receiving commands to relay connections...
+  - For `WS` connections, the browser dialer simply forwards messages back and forth without any processing.
+  - For `GET` requests, the browser dialer simply connects to the data socket, then forwards the response body to it once ready. The dialer will close the connection once the response stream closes.
+  - For other requests, the browser dialer first connects to the data socket, then initiates a bidirectional `fetch` forwarding with passthrough.
+
 ## Support
 This section is strictly for this reference implementation.
 
