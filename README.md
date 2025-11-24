@@ -32,6 +32,23 @@
   - `r`: **Only valid for non-WebSockets for browsers**. Value of the [`Referer`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#referrer) header. This field is currently mostly repurposed to handle early payload data encoded in [URL-safe Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-5). The value of this field can change in the dialer.
   - `h`: **Only valid for non-WebSockets for browsers**. The map of all of the header key-value pairs to send on request initiation. Should not be one of the [forbidden headers](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_request_header) in browsers.
 
+#### Connection state schema
+```json
+{
+	"m": "APPAT",
+	"u": "https://relay.example.com/madi",
+	"c": "00000000-0000-0000-0000-000000000000",
+	"e": {
+		"appat": "requestEnd"
+	}
+}
+```
+When method is set to `APPAT`, the control message instead signals on how to deal with existing connections, as such `c` should match one of the existing connections.
+
+`e.appat` can take one of the following values.
+
+- `requestEnd`: Marks the uploading stream of an existing HTTP request as ended. Beware of racing conditions on the controller side, and remember to always apply backpressure.
+
 ### Response status schema
 Only viable for normal HTTP requests.
 ```json
