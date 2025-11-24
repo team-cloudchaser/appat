@@ -123,7 +123,7 @@ export default class AppatController {
 							opt.referrerPolicy = "unsafe-url";
 							// Would this change when web safety gets disabled?
 							let rUrl = new URL(data.e.r);
-							opt.referrer = data.e.r.replace(`${rUrl.protocol}//${rUrl.hostname}`);
+							opt.referrer = data.e.r.replace(`${rUrl.protocol}//${rUrl.hostname}`, "");
 						};
 						if (data.e.hasOwnProperty("h")) {
 							opt.headers = data.e.h;
