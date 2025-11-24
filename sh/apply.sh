@@ -4,4 +4,5 @@ echo -e '<!DOCTYPE html>\n<head>\n\t<meta http-equiv="200" charset="utf-8" />\n\
 cat src/client/index.mjs >> ../Xray-core/transport/internet/browser_dialer/dialer.html
 echo -e '\n\t</script>\n</head>\n<body>\n</body>' >> ../Xray-core/transport/internet/browser_dialer/dialer.html
 sed -i "s/\/index//g" "../Xray-core/transport/internet/browser_dialer/dialer.html"
+sed -i "s/\"\.\./\"/" "../Xray-core/transport/internet/browser_dialer/dialer.html"
 exit
