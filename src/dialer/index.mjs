@@ -1,3 +1,6 @@
+// 2025 (C) Team Cloudchaser
+// Licensed under MIT License
+
 "use strict";
 
 const FutureSignal = class FutureSignal {

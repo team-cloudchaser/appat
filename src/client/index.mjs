@@ -1,3 +1,6 @@
+// 2025 (C) Team Cloudchaser
+// Licensed under MIT License
+
 "use strict";
 
 import AppatController from "../dialer/index.mjs";
