@@ -22,7 +22,7 @@ const denoClient = self.Deno?.createHttpClient({
 	"allowHost": true
 });
 
-export default class AppatController {
+export default class AppatDialer {
 	report = true; // Set to false to disable response status reporting
 	instanceId;
 	#wsNext = true; // Set to true to trigger WS fallback
@@ -157,6 +157,7 @@ export default class AppatController {
 									"pull": async (controller) => {
 										if (upThis.#uploadDeny.has(data.c)) {
 											upThis.#uploader.get(data.c)[2]();
+											upThis.#uploadDeny.delete(data.c);
 										} else if (upThis.#uploader.has(data.c)) {
 											// Only pipe when still active
 											let {value, done} = await sourceReader.read();
@@ -165,6 +166,7 @@ export default class AppatController {
 											};
 											if (done || upThis.#uploadDeny.has(data.c)) {
 												upThis.#uploader.get(data.c)[2]();
+												upThis.#uploadDeny.delete(data.c);
 											};
 										};
 									}
