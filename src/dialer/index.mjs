@@ -24,13 +24,15 @@ export default class AppatController {
 	instanceId;
 	#wsNext = true; // Set to true to trigger WS fallback
 	#rqNext = true; // Set to true to trigger fetch fallback
-	#isBrowser = 2; // 2 for safe browser, 1 for unsafe, 0 for non-browser
+	#isBrowser = 2; // 2 for half duplex browser, 1 for full duplex, 0 for non-browser
 	#prefix;
 	#csrf;
 	#compiledPrefix;
 	#compiledWsPrefix;
 	#controller;
 	#aborter;
+	#uploader = new Map();
+	#uploadDeny = new Set();
 	constructor(prefix, csrf) {
 		if (!Request.prototype.hasOwnProperty("body")) {
 			this.#rqNext = false;
@@ -66,8 +68,8 @@ export default class AppatController {
 			console.warn(`Control socket has errored out:`, ev.error);
 		});
 		upThis.#controller.addEventListener("close", (ev) => {
-			upThis.#aborter.abort();
 			console.warn(`Control socket closed.`);
+			upThis.#aborter?.abort();
 		});
 		upThis.#controller.addEventListener("opened", (ev) => {
 			console.warn(`Control socket is now ready.`);
@@ -79,6 +81,21 @@ export default class AppatController {
 			switch (data.m) {
 				case "PING": {
 					console.debug(`Pong!`);
+					break;
+				};
+				case "APPAT": {
+					switch (data.e?.appat) {
+						case "requestEnd": {
+							if (upThis.#uploader.has(data.c)) {
+								upThis.#uploader.get(data.c)[2]();
+								console.info(`Closed an ongoing upload.`);
+							} else {
+								upThis.#uploadDeny.add(data.c);
+								console.info(`Closed a future upload.`);
+							};
+							break;
+						};
+					};
 					break;
 				};
 				case "WS": {
@@ -119,10 +136,47 @@ export default class AppatController {
 							case "OPTIONS":
 							case "PATCH": {
 								// Add the request body
-								opt.body = wssTun.readable;
-								opt.duplex = upThis.#isBrowser > 0 ? "half" : "full";
+								let sourceReader = wssTun.readable.getReader();
+								opt.body = new ReadableStream({
+									"queueingStrategy": new ByteLengthQueuingStrategy({
+										"highWaterMark": 65536
+									}),
+									"start": async (controller) => {
+										upThis.#uploader.set(data.c, [
+											controller,
+											sourceReader,
+											() => {
+												controller.close();
+												upThis.#uploader.delete(data.c);
+											}
+										])
+									},
+									"pull": async (controller) => {
+										if (upThis.#uploadDeny.has(data.c)) {
+											upThis.#uploader.get(data.c)[2]();
+										} else if (upThis.#uploader.has(data.c)) {
+											// Only pipe when still active
+											let {value, done} = await sourceReader.read();
+											if (value !== undefined) {
+												controller.enqueue(value);
+											};
+											if (done || upThis.#uploadDeny.has(data.c)) {
+												upThis.#uploader.get(data.c)[2]();
+											};
+										};
+									}
+								});
+								if (upThis.#isBrowser > 1) {
+									opt.duplex = "half";
+									upThis.#controller.send(`{"c":"${data.c}","s":1,"t":"AppatError","e":"appat.halfDuplex"}`);
+								} else {
+									opt.duplex = "full";
+								};
 								break;
 							};
+						};
+						if (denoClient) {
+							opt.client = denoClient;
 						};
 						let req = await fetch(data.u, opt);
 						if (upThis.report) {

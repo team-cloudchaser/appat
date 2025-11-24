@@ -22,6 +22,7 @@ Deno.serve({
 				socket.addEventListener("open", () => {
 					socket.send(`{"m":"PING"}`);
 					socket.send(`{"m":"POST","u":"https://example.com/","c":"11111111-1111-1111-1111-111111111111","e":{"r":"about:client","h":{"Accept":"text/html"}}}`);
+					socket.send(`{"m":"APPAT","u":"https://example.com/","c":"11111111-1111-1111-1111-111111111111","e":{"appat":"requestEnd"}}`);
 					//socket.send(`{"m":"GET","u":"https://browserleaks.com/ip","c":"22222222-2222-2222-2222-222222222222","e":{"r":"about:client","h":{"Accept":"text/html","Authorization":"Bearer Appat"}}}`);
 				});
 				socket.addEventListener("message", (ev) => {

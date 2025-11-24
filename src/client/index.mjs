@@ -13,7 +13,7 @@ if (self.location?.href) {
 };
 console.debug(`Received dialer prefix: ${pagePrefix}`);
 
-const nullCSRF = "__" + "CSRF_TOKEN" + "__";
+const nullCSRF = atob("X19DU1JGX1RPS0VOX18");
 let pageCSRF = "__CSRF_TOKEN__"; // Replaced with a valid token dynamically
 if (pageCSRF === nullCSRF) {
 	// The CSRF token must be a valid UUID
