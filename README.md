@@ -48,6 +48,7 @@ When method is set to `APPAT`, the control message instead signals on how to dea
 `e.appat` can take one of the following values.
 
 - `requestEnd`: Marks the uploading stream of an existing HTTP request as ended. Beware of racing conditions on the controller side, and remember to always apply backpressure.
+- `existedConn`: Marks the disconnecting/disconnected/connecting data socket as failed due to having a connection ID collision.
 
 ### Response status schema
 Only viable for normal HTTP requests.
@@ -96,12 +97,14 @@ Most, but not all. gRPC and `GET` requests with bodies are examples that cannot 
 ### Are the relayed connections fully duplex?
 Depending on the actual runtime used with the dialer. If in a browser, none of the current browser supports fully duplex connections. If in headless runtimes like Deno however, it is fully duplex.
 
-### How do I run Appat with X?
+### How do I run Appat without CORS?
 - For Chromium: Use `--disable-web-security`. A temporary data directory is also required with `--user-data-dir=tmpData`. Perfect for headless use as well. Example: `chromium --disable-web-security --user-data-dir=tmpData "http://127.0.0.1:5779/"`
 - For Firefox: Set `security.fileuri.strict_origin_policy` to `false` (headless friendly), or install the "CORS Everywhere" extension.
+- For Deno: Just go nuts!
 
 ### Can I run Appat in headless mode?
 Of course! Apart from Deno support, Appat targets headless mode specifically.
 
 - For Chromium: `--headless`. Example: `chromium --headless "http://127.0.0.1:5779/"`
 - For Firefox: `-headless`. Example: `firefox -headless "http://127.0.0.1:5779/"`
+- For Deno: Run it as-is, support available built-in.
