@@ -12,16 +12,13 @@ Deno.serve({
 			"status": 400
 		});
 	} else {
-		const {socket, response: resp} = Deno.upgradeWebSocket(req);
-		let newHeaders = new Headers();
-		for (let [k, v] of resp.headers.entries()) {
-			newHeaders.set(k, v);
-		};
+		let upgradeOpt = {};
 		if (req.headers.has("Sec-WebSocket-Protocol")) {
 			let wsProtos = req.headers.get("Sec-WebSocket-Protocol").split(", ");
 			console.debug(wsProtos);
-			newHeaders.set("Sec-WebSocket-Protocol", wsProtos[0]);
+			upgradeOpt.protocol = wsProtos[0];
 		};
+		const {socket, response: resp} = Deno.upgradeWebSocket(req, upgradeOpt);
 		socket.addEventListener("open", async () => {
 			console.debug(`Repeater has been connected.`);
 			if (socket.protocol) {
@@ -33,10 +30,6 @@ Deno.serve({
 			console.debug(`Message received.`);
 			socket.send(ev.data);
 		});
-		return new Response(resp.body, {
-			"status": resp.status,
-			"statusText": resp.statusText,
-			"headers": newHeaders
-		});
+		return resp;
 	};
 });
