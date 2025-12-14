@@ -48,7 +48,6 @@ When method is set to `APPAT`, the control message instead signals on how to dea
 `e.appat` can take one of the following values.
 
 - `requestEnd`: Marks the uploading stream of an existing HTTP request as ended. Beware of racing conditions on the controller side, and remember to always apply backpressure.
-- `existedConn`: Marks the disconnecting/disconnected/connecting data socket as failed due to having a connection ID collision.
 
 ### Response status schema
 Only viable for normal HTTP requests.
@@ -68,7 +67,9 @@ Only viable for normal HTTP requests.
 - `c`: Connection UUID. The same UUID assigned by the dialer controller.
 - `s`: Numeric status.
 - `t`: Status text.
-- `e`: Optional field. When `s` is set to `0`, this field will contain detailed info on the error.
+- `e`: Optional field. When `s` is set to `0` (error) or `1` (warning), this field will contain detailed info on the error.
+  - `appat.halfDuplex`: Marks the client runtime as having no support for full-duplex web requests.
+  - `appat.cidCollision`: Marks the disconnecting/disconnected/connecting data socket as failed due to having a connection ID collision.
 - `h`: A list of response headers.
 
 ### Processing flow
