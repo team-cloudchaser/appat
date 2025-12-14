@@ -25,6 +25,7 @@ Deno.serve({
 					socket.send(`{"m":"APPAT","u":"https://example.com/","c":"11111111-1111-1111-1111-111111111111","e":{"appat":"requestEnd"}}`);
 					//socket.send(`{"m":"GET","u":"https://browserleaks.com/ip","c":"22222222-2222-2222-2222-222222222222","e":{"r":"about:client","h":{"Accept":"text/html","Authorization":"Bearer Appat"}}}`);
 					socket.send(`{"m":"GET","u":"https://example.com/","c":"33333333-3333-3333-3333-333333333333","e":{"r":"about:client","h":{"Accept":"text/html"}}}`);
+					socket.send(`{"m":"WS","u":"http://127.0.0.1:5780/","c":"44444444-4444-4444-4444-444444444444","e":{"p":"WWpTbnBp"}}`);
 				});
 				socket.addEventListener("message", (ev) => {
 					console.debug(`Status ${socketId}`, ev.data);
