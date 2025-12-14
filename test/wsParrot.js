@@ -1,6 +1,6 @@
 "use strict";
 
-const u8Enc = new TextEncoder();
+const u8Enc = new TextEncoder(), u8Dec = new TextDecoder();
 
 Deno.serve({
 	"port": 5780,
@@ -27,7 +27,7 @@ Deno.serve({
 			socket.send(u8Enc.encode("Connected!"))
 		});
 		socket.addEventListener("message", async (ev) => {
-			console.debug(`Message received.`);
+			console.debug(`Message received (${ev.data.length}). ${ev.data}`);
 			socket.send(ev.data);
 		});
 		return resp;

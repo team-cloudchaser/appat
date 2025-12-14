@@ -31,9 +31,21 @@ Deno.serve({
 					console.debug(`Status ${socketId}`, ev.data);
 				});
 			} else {
-				socket.addEventListener("message", async (ev) => {
-					console.debug(`Body ${socketId}:`, u8Dec.decode(new Uint8Array(ev.data)));
-				});
+				if (socketId === "44444444-4444-4444-4444-444444444444") {
+					let nommingThread = setInterval(() => {
+						socket.send(`Nom the deer! ${Math.floor(Math.random() * 1000000)}`);
+					}, 1000);
+					socket.addEventListener("close", async (ev) => {
+						clearInterval(nommingThread);
+					});
+					socket.addEventListener("message", async (ev) => {
+						console.debug(`Body ${socketId}:`, ev.data);
+					});
+				} else {
+					socket.addEventListener("message", async (ev) => {
+						console.debug(`Body ${socketId}:`, u8Dec.decode(new Uint8Array(ev.data)));
+					});
+				};
 			};
 		} else {
 			console.debug(`Invalid WS path.`);
