@@ -86,7 +86,7 @@ This section is strictly for this reference implementation.
 ### Protocols
 | Protocol | Supported? |
 | -------- | ---------- |
-| `WS` | No |
+| `WS` | Yes |
 | `WT` | No |
 | `GET` | Yes |
 | `POST` etc. | Yes |
