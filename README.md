@@ -67,7 +67,7 @@ Only viable for normal HTTP requests.
 - `c`: Connection UUID. The same UUID assigned by the dialer controller.
 - `s`: Numeric status.
 - `t`: Status text.
-- `e`: Optional field. When `s` is set to `0` (error) or `1` (warning), this field will contain detailed info on the error.
+- `e`: Optional field. When `s` is set to `0` (raw error) or `1` (Appat status), this field will contain detailed info on the error.
   - `appat.halfDuplex`: Marks the client runtime as having no support for full-duplex web requests.
   - `appat.cidCollision`: Marks the disconnecting/disconnected/connecting data socket as failed due to having a connection ID collision.
 - `h`: A list of response headers.
