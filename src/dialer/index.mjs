@@ -110,6 +110,7 @@ export default class AppatDialer {
 					break;
 				};
 				case "WT": {
+					console.warn("WebTransport is not yet supported.");
 					break;
 				};
 				case "HEAD":
